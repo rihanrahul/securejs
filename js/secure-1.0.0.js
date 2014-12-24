@@ -255,6 +255,49 @@
 		_this.show_result(elem,res);
 	},
 
+	Secure.prototype.match = function(elem,matcher){
+		var _this = this;
+		var val = elem.val();
+		var matchSel = $(_this.elem).find('input[name='+matcher+']');//find the element given to match with		
+		if (!matchSel) return;//return if not found element
+		if (matchSel.val().length == 0 && val.length == 0) return;
+		var res = val !== matchSel.val() ? [false,_this.msgs.matchError] : [true,_this.msgs.matchSuccess];
+		_this.show_result(elem,res);
+	},
+
+	Secure.prototype.strength = function(elem){
+		var _this = this;
+		var val = elem.val();
+		if(val.length==0) return;
+		minPassLen = (isNaN(_this.options.minPassLen) ? 4 : _this.options.minPassLen);//if min length is not a number in settings, take 4 as min len
+			
+		medPassLen = (isNaN(_this.options.medPassLen) ? 6 : _this.options.medPassLen);//if med length is not a number in settings, take 6 as med len
+		
+		strongPassLen = (isNaN(_this.options.strongPassLen) ? 8 : _this.options.strongPassLen);//if strong is not a number in settings, take 8 as strong
+		
+		strong = new RegExp("^(?=.{"+strongPassLen+",})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\\W).*$", "g");
+		
+		medium = new RegExp("^(?=.{"+medPassLen+",})(((?=.*[A-Z])(?=.*[a-z]))|((?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))).*$", "g");
+		
+		enough = new RegExp("(?=.{"+minPassLen+",}).*", "g");
+		
+		minLen = _this.msgs.minLength.replace('{{min}}',minPassLen);//replacing {{min}} with given min length in settings
+
+		if (enough.test(val) === false) {
+			var res = [false,minLen];
+		}
+		else if(strong.test(val)){
+			var res = [true,_this.msgs.strongPass];
+		}
+		else if(medium.test(val)){
+			var res = [true,_this.msgs.mediumPass];
+		}
+		else{
+			var res = [true,_this.msgs.weakPass];
+		}
+		_this.show_result(elem,res);	
+	},
+
 	Secure.prototype.show_result = function(elem,result){
 		var _this = this;
 		elem.next('.'+_this.css_classes.msg).text(result[1]);
