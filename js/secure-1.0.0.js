@@ -295,7 +295,16 @@
 		else{
 			var res = [true,_this.msgs.weakPass];
 		}
-		_this.show_result(elem,res);	
+		_this.show_result(elem,res);
+	},
+
+	Secure.prototype.url = function(elem){
+		var _this = this;
+		var val = elem.val();
+		if(val.length==0) return;
+		var url_regexp = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");//regexp for validating url
+		var res = (!url_regexp.test(val)) ? [false,_this.msgs.url] : [true,_this.msgs.success];//if not a url show error else show success
+		_this.show_result(elem,res);
 	},
 
 	Secure.prototype.show_result = function(elem,result){
