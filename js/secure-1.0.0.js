@@ -307,6 +307,15 @@
 		_this.show_result(elem,res);
 	},
 
+	Secure.prototype.email = function(elem){
+		var _this = this;
+		var val = elem.val();
+		if(val.length==0) return;
+		var email_regexp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/igm;//regexp for checking email
+		var res = (!email_regexp.test(val)) ? [false,_this.msgs.email] : [true,_this.msgs.success];
+		_this.show_result(elem,res);
+	},
+
 	Secure.prototype.show_result = function(elem,result){
 		var _this = this;
 		elem.next('.'+_this.css_classes.msg).text(result[1]);
