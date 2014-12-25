@@ -17,6 +17,18 @@ securejs
 <script type="text/javascript" src="js/secure-1.0.0.js"></script>
 ```
 
+<h4>Form</h4>
+
+```html
+
+<form>
+  <input type="text" name="firstname" data-secure="presence" />
+  <input type="text" name="email" data-secure="presence email" />
+  <input type="submit" value="Submit" />
+</form>
+
+```
+
 <h3>javascript</h3>
 ```javascript
 <script type="text/javascript">
