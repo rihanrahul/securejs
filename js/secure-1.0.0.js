@@ -16,7 +16,7 @@
 		var _this = this;
 		_this.elem = elem;
 		_this.options = $.extend({},_this.config,options.settings);//extending the configurations so that you can change the configuration later;
-		_this.msgs = $.extend({},_this.messages,options.messages);//extending the configurations so that you can change the configuration later;
+		_this.msgs = $.extend({},_this.messages,options.messages);//extending the messages so that you can change the messages later;
 		_this.init();
 	}
 	
@@ -73,6 +73,7 @@
 		data.indexOf('presence') !== -1 ? $(elem).addClass(_this.css_classes.reject) : null;
 	},
 
+	//wraping elemets to show messages
 	Secure.prototype.wrap = function(){
 		var _this = this;
 		var elems = $(_this.elem).find('[data-secure]');
@@ -135,6 +136,9 @@
 		});
 	},
 	
+	//for logging purpose
+	//if console available show in console
+	//else alert
 	Secure.prototype.log = function(msg){
 		'console' in window ? console.log(msg) : alert(msg);
 	},
@@ -143,30 +147,38 @@
 		return val.indexOf("[") !== -1 && val.indexOf("]") !== -1 ? val.substring(val.indexOf("[")+1,val.indexOf("]")) : val;
 	},
 	
+	//to check value is not empty
+	//*** data-secure="presence"
 	Secure.prototype.presence = function(elem){
 		var _this = this;
-		var res = elem.val().replace(/\s+/g, '').length > 0 ? [true,_this.msgs.success] : [false,_this.msgs.presence];
+		var res = elem.val().replace(/\s+/g, '').length > 0 ? [true,'success'] : [false,'presence'];
 		_this.show_result(elem,res);
 	},
-
+	
+	//method to check minimum length
+	//*** data-secure="minimum[5]"
 	Secure.prototype.minimum = function(elem,min){
 		var _this = this;
 		var length = elem.val().replace(/\s+/g, '').length;
 		if(length == 0) return;
-		var minLength = _this.msgs.minLength.replace('{{min}}',min);
-		var res = elem.val().replace(/\s+/g, '').length < min ? [false,minLength] : [true,_this.msgs.success];
+		_this.msgs.minLength = _this.msgs.minLength.replace('{{min}}',min);
+		var res = elem.val().replace(/\s+/g, '').length < min ? [false,'minLength'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to check maximum length
+	//*** data-secure="maximum[50]"
 	Secure.prototype.maximum = function(elem,max){
 		var _this = this;
 		var length = elem.val().replace(/\s+/g, '').length;
 		if(length == 0) return;
-		var maxLength = _this.msgs.maxLength.replace('{{max}}',max);
-		var res = length > max ? [false,maxLength] : [true,_this.msgs.success];
+		_this.msgs.maxLength = _this.msgs.maxLength.replace('{{max}}',max);
+		var res = length > max ? [false,'maxLength'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to check is in between specified length
+	//*** data-secure="between[5-20]"
 	Secure.prototype.between = function(elem,range){
 		var _this = this;
 		var length = elem.val().replace(/\s+/g, '').length;
@@ -175,43 +187,53 @@
 		if(isNaN(range[0]) || isNaN(range[1] || range[1] < range[0])){
 			return;
 		}
-		var msg = _this.msgs.between.replace('{{min}}',range[0]).replace('{{max}}',range[1]);
-		var res = length < range[0] || length > range[1] ? [false,msg] : [true,_this.msgs.success];
+		_this.msgs.between = _this.msgs.between.replace('{{min}}',range[0]).replace('{{max}}',range[1]);
+		var res = length < range[0] || length > range[1] ? [false,'between'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to check input contains alphabetic characters only
+	//*** data-secure="alphabetic"
 	Secure.prototype.alphabetic = function(elem){
 		var _this = this;
 		var str = elem.val().replace(/\s+/g, '');
 		if(str.length == 0) return;
-		var res = !/^[a-zA-Z]+$/.test(str) ? [false,_this.msgs.alpha] : [true,_this.msgs.success];//checking if value contains only alphabetic characters
+		var res = !/^[a-zA-Z]+$/.test(str) ? [false,'alpha'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to check input contains alphabetic characters & numbers only
+	//*** data-secure="alphanumeric"
 	Secure.prototype.alphanumeric = function(elem){
 		var _this = this;
 		var str = elem.val().replace(/\s+/g, '');
 		if(str.length == 0) return;
-		var res = !/^[a-zA-Z0-9]+$/.test(str) ? [false,_this.msgs.alphaNumeric] : [true,_this.msgs.success];//checking if value contains only alphanumeric characters
+		var res = !/^[a-zA-Z0-9]+$/.test(str) ? [false,'alphaNumeric'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to check input contains numbers only
+	//*** data-secure="numeric"
 	Secure.prototype.numeric = function(elem){
 		var _this = this;
 		var val = elem.val();
 		if(val.length == 0) return;
-		var res = isNaN(val) || val.indexOf('.') !== -1 ? [false,_this.msgs.number] : [true,_this.msgs.success];//checking if value contains only numbers
+		var res = isNaN(val) || val.indexOf('.') !== -1 ? [false,'number'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//checking if value contains only floating ponit numbers
+	//*** data-secure="float"
 	Secure.prototype.float = function(elem){
 		var _this = this;
 		var val = elem.val();
 		if(val.length == 0) return;
-		var res = !/^[-0-9.]+$/.test(val) ? [false,_this.msgs.float] : [true,_this.msgs.success];//checking if value contains only numbers
+		var res = !/^[-0-9.]+$/.test(val) ? [false,'float'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//checking if value is less than specified number
+	//*** data-secure="lessthan[10000]"
 	Secure.prototype.lessthan = function(elem,limit){
 		limit = parseFloat(limit);
 		var _this = this;
@@ -221,12 +243,14 @@
 			var res = [false,_this.msgs.number];
 		}
 		else{
-			var msg = _this.msgs.lessthan.replace('{{val}}',limit);
-			var res = val > limit ? [false,msg] : [true,_this.msgs.success];
+			_this.msgs.lessthan = _this.msgs.lessthan.replace('{{val}}',limit);
+			var res = val > limit ? [false,'lessthan'] : [true,'success'];
 		}
 		_this.show_result(elem,res);
 	},
 
+	//checking if value is greater than specified number
+	//*** data-secure="greaterthan[500]"
 	Secure.prototype.greaterthan = function(elem,limit){
 		limit = parseFloat(limit);
 		var _this = this;
@@ -236,12 +260,14 @@
 			var res = [false,_this.msgs.number];
 		}
 		else{
-			var msg = _this.msgs.greaterthan.replace('{{val}}',limit);
-			var res = val < limit ? [false,msg] : [true,_this.msgs.success];
+			_this.msgs.greaterthan = _this.msgs.greaterthan.replace('{{val}}',limit);
+			var res = val < limit ? [false,'greaterthan'] : [true,'success'];
 		}
 		_this.show_result(elem,res);
 	},
 
+	//checking if value is in between specified numbers
+	//*** data-secure="range[500-10000]"
 	Secure.prototype.range = function(elem,range){
 		var _this = this;
 		var val = elem.val();
@@ -250,21 +276,27 @@
 		if(isNaN(range[0]) || isNaN(range[1] || range[1] < range[0])){
 			return;
 		}
-		var msg = _this.msgs.range.replace('{{min}}',range[0]).replace('{{max}}',range[1]);
-		var res = val < range[0] || val > range[1] ? [false,msg] : [true,_this.msgs.success];
+		_this.msgs.range = _this.msgs.range.replace('{{min}}',range[0]).replace('{{max}}',range[1]);
+		var res = val < range[0] || val > range[1] ? [false,'range'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//checking if two inputs have same values
+	//used to check password matching
+	//*** data-secure="match[password]"
+	//where password is the name of the input to match
 	Secure.prototype.match = function(elem,matcher){
 		var _this = this;
 		var val = elem.val();
 		var matchSel = $(_this.elem).find('input[name='+matcher+']');//find the element given to match with		
 		if (!matchSel) return;//return if not found element
 		if (matchSel.val().length == 0 && val.length == 0) return;
-		var res = val !== matchSel.val() ? [false,_this.msgs.matchError] : [true,_this.msgs.matchSuccess];
+		var res = val !== matchSel.val() ? [false,'matchError'] : [true,'matchSuccess'];
 		_this.show_result(elem,res);
 	},
 
+	//used to check password strength
+	//*** data-secure="strength"
 	Secure.prototype.strength = function(elem){
 		var _this = this;
 		var val = elem.val();
@@ -281,44 +313,49 @@
 		
 		enough = new RegExp("(?=.{"+minPassLen+",}).*", "g");
 		
-		minLen = _this.msgs.minLength.replace('{{min}}',minPassLen);//replacing {{min}} with given min length in settings
+		_this.msgs.minLength = _this.msgs.minLength.replace('{{min}}',minPassLen);//replacing {{min}} with given min length in settings
 
 		if (enough.test(val) === false) {
-			var res = [false,minLen];
+			var res = [false,'minLength'];
 		}
 		else if(strong.test(val)){
-			var res = [true,_this.msgs.strongPass];
+			var res = [true,'strongPass'];
 		}
 		else if(medium.test(val)){
-			var res = [true,_this.msgs.mediumPass];
+			var res = [true,'mediumPass'];
 		}
 		else{
-			var res = [true,_this.msgs.weakPass];
+			var res = [true,'weakPass'];
 		}
 		_this.show_result(elem,res);
 	},
 
+	// to check a valid url
+	//*** data-secure="url"
 	Secure.prototype.url = function(elem){
 		var _this = this;
 		var val = elem.val();
 		if(val.length==0) return;
 		var url_regexp = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");//regexp for validating url
-		var res = (!url_regexp.test(val)) ? [false,_this.msgs.url] : [true,_this.msgs.success];//if not a url show error else show success
+		var res = (!url_regexp.test(val)) ? [false,'url'] : [true,'success'];//if not a url show error else show success
 		_this.show_result(elem,res);
 	},
 
+	// to check a valid email
+	//*** data-secure="email"
 	Secure.prototype.email = function(elem){
 		var _this = this;
 		var val = elem.val();
 		if(val.length==0) return;
 		var email_regexp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/igm;//regexp for checking email
-		var res = (!email_regexp.test(val)) ? [false,_this.msgs.email] : [true,_this.msgs.success];
+		var res = (!email_regexp.test(val)) ? [false,'email'] : [true,'success'];
 		_this.show_result(elem,res);
 	},
 
+	//method to show the error success message
 	Secure.prototype.show_result = function(elem,result){
 		var _this = this;
-		elem.next('.'+_this.css_classes.msg).text(result[1]);
+		elem.next('.'+_this.css_classes.msg).text(_this.msgs[result[1]]);
 		result[0] === true ? elem.removeClass(_this.css_classes.reject).next('.'+_this.css_classes.msg).removeClass(_this.css_classes.error).addClass(_this.css_classes.success).fadeIn(0) : elem.addClass(_this.css_classes.reject).next('.'+_this.css_classes.msg).removeClass(_this.css_classes.success).addClass(_this.css_classes.error).fadeIn(0);
 	},
 	
